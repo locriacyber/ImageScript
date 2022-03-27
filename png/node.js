@@ -1,18 +1,3 @@
-var __defProp = Object.defineProperty;
-var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, {get: all[name], enumerable: true});
-};
-
-// ../../Users/evan/GitHub/ImageScript/png/src/png.js
-__markAsModule(exports);
-__export(exports, {
-  decode: () => decode,
-  encode: () => encode
-});
-
-// ../../Users/evan/GitHub/ImageScript/png/src/crc.js
 var table = new Uint32Array([
   0,
   1996959894,
@@ -932,7 +917,7 @@ var channels_to_color_type = {
   4: color_types.TRUECOLOR_ALPHA
 };
 var utf8encoder = new TextEncoder();
-function encode(data, {text, width, height, channels, depth = 8, level = 0}) {
+export function encode(data, {text, width, height, channels, depth = 8, level = 0}) {
   let offset = 0;
   let tmp_offset = 0;
   const row_length = width * channels;
@@ -989,7 +974,7 @@ function encode(data, {text, width, height, channels, depth = 8, level = 0}) {
   view2.setUint32(41 + compressed.length, crc32(new Uint8Array(array.buffer, 37, 4 + compressed.length)));
   return array;
 }
-function decode(array) {
+export function decode(array) {
   let view2 = new DataView(array.buffer, array.byteOffset, array.byteLength);
   const width = view2.getUint32(16);
   const height = view2.getUint32(20);

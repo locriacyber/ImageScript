@@ -1,5 +1,6 @@
 old/
 .idea/
+.vscode/
 coverage/
 .DS_Store
 .nyc_output/

@@ -1,13 +1,33 @@
-const { view } = require('../util/mem.js');
-
+import { view } from '../util/mem.js';
 const formats = {
-  ttf: { type: 'font', format: 'ttf' },
-  otf: { type: 'font', format: 'otf' },
-  svg: { type: 'image', format: 'svg' },
-  png: { type: 'image', format: 'png' },
-  gif: { type: 'image', format: 'gif' },
-  jpeg: { type: 'image', format: 'jpeg' },
-  tiff: { type: 'image', format: 'tiff' },
+  ttf: {
+    type: 'font',
+    format: 'ttf'
+  },
+  otf: {
+    type: 'font',
+    format: 'otf'
+  },
+  svg: {
+    type: 'image',
+    format: 'svg'
+  },
+  png: {
+    type: 'image',
+    format: 'png'
+  },
+  gif: {
+    type: 'image',
+    format: 'gif'
+  },
+  jpeg: {
+    type: 'image',
+    format: 'jpeg'
+  },
+  tiff: {
+    type: 'image',
+    format: 'tiff'
+  }
 };
 
 function buffer(init) {
@@ -22,4 +42,6 @@ function buffer(init) {
   if (0x89 === u8[0] && 0x50 === u8[1] && 0x4e === u8[2] && 0x47 === u8[3] && 0x0d === u8[4] && 0x0a === u8[5] && 0x1a === u8[6] && 0x0a === u8[7]) return formats.png;
 }
 
-module.exports = { buffer };
+export default {
+  buffer
+};
