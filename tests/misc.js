@@ -53,12 +53,12 @@ if (Image.hslaToColor(0, 0, 1, 0xff) !== 0xffffffff)
 
 {
     const image = new Image(1, 1);
-    image.setPixelAt(1, 1, 0xff8000ff);
+    image.__set_pixel_1_indexed__(1, 1, 0xff8000ff);
 
-    const pixel = image.getPixelAt(1, 1);
-    if (pixel !== 0xff8000ff) panic('getPixelAt fails');
+    const pixel = image.__getPixelAt_1_indexed__(1, 1);
+    if (pixel !== 0xff8000ff) panic('__getPixelAt_1_indexed__ fails');
 
-    const rgba = image.getRGBAAt(1, 1);
+    const rgba = image.__getRGBAAt_1_indexed__(1, 1);
     const target = [0xff, 0x80, 0x00, 0xff];
     for (let i = 0; i < 4; i++)
         if (rgba[i] !== target[i])
@@ -68,32 +68,32 @@ if (Image.hslaToColor(0, 0, 1, 0xff) !== 0xffffffff)
 {
     const image = new Image(1, 1);
     try {
-        image.__check_boundaries__('a', 1);
+        image.__check_boundaries_1_indexed__('a', 1);
         panic('check boundaries for x as NaN failed');
     } catch {
     }
     try {
-        image.__check_boundaries__(1, 'a');
+        image.__check_boundaries_1_indexed__(1, 'a');
         panic('check boundaries for y as NaN failed');
     } catch {
     }
     try {
-        image.__check_boundaries__(0, 1);
+        image.__check_boundaries_1_indexed__(0, 1);
         panic('check boundaries for x as 0 failed');
     } catch {
     }
     try {
-        image.__check_boundaries__(1, 0);
+        image.__check_boundaries_1_indexed__(1, 0);
         panic('check boundaries for y as 0 failed');
     } catch {
     }
     try {
-        image.__check_boundaries__(2, 1);
+        image.__check_boundaries_1_indexed__(2, 1);
         panic('check boundaries for x as 2 failed');
     } catch {
     }
     try {
-        image.__check_boundaries__(1, 2);
+        image.__check_boundaries_1_indexed__(1, 2);
         panic('check boundaries for y as 2 failed');
     } catch {
     }
@@ -144,11 +144,11 @@ if (Image.hslaToColor(0, 0, 1, 0xff) !== 0xffffffff)
 {
     const image = new Image(1, 1);
     image.drawBox(1, 1, 1, 1, 0xff8000ff);
-    if (image.getPixelAt(1, 1) !== 0xff8000ff)
+    if (image.__getPixelAt_1_indexed__(1, 1) !== 0xff8000ff)
         panic('static drawBox failed');
 
     image.drawBox(1, 1, 1, 1, () => 0x00ff00ff);
-    if (image.getPixelAt(1, 1) !== 0x00ff00ff)
+    if (image.__getPixelAt_1_indexed__(1, 1) !== 0x00ff00ff)
         panic('fn drawBox failed');
 }
 
