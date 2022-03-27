@@ -33,8 +33,5 @@
   "bugs": {
     "url": "https://github.com/matmen/ImageScript/issues"
   },
-  "homepage": "https://github.com/matmen/ImageScript#readme",
-  "engines": {
-    "node": ">=14.0.0"
-  }
+  "homepage": "https://github.com/matmen/ImageScript#readme"
 }
