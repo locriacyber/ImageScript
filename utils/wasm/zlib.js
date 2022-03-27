@@ -1,6 +1,7 @@
 let ref = { deref() {} };
 
-const wasm_mod = await WebAssembly.compileStreaming(fetch(new URL(import.meta.url.replace('.js', '.wasm'))))
+import { importWasm } from '../wasm-import.ts'
+const wasm_mod = await importWasm(import.meta.url)
 
 function wasm() {
   return ref.deref() || (ref = new WeakRef(new WebAssembly.Instance(wasm_mod).exports)).deref();

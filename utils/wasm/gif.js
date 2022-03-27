@@ -2,7 +2,8 @@ const streams = new Map;
 let ref = { deref() {} };
 const utf8encoder = new TextEncoder;
 
-const wasm_mod = await WebAssembly.compileStreaming(fetch(new URL(import.meta.url.replace('.js', '.wasm'))))
+import { importWasm } from '../wasm-import.ts'
+const wasm_mod = await importWasm(import.meta.url)
 
 function wasm() {
   return ref.deref() || (ref = new WeakRef(new WebAssembly.Instance(wasm_mod, {
