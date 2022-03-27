@@ -1,13 +1,7 @@
-const wasm_name = 'jpeg';
-const { join } = require('path');
-const { promises: { readFile } } = require('fs');
-const wasm_path = process.env.IMAGESCRIPT_WASM_SIMD ? 'simd' : 'any';
+import * as mod from '../any/jpeg.wasm'
 
-let mod = null;
 module.exports = {
   async init() {
-    if (!mod) mod = new WebAssembly.Module(await readFile(join(__dirname, `../${wasm_path}/${wasm_name}.wasm`)));
-
     return this.new();
   },
 
