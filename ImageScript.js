@@ -232,8 +232,7 @@ class Image {
      * @returns {number} The color value
      */
     getPixelAt(x, y) {
-        this.__check_boundaries__(x, y);
-        return this.__view__.getUint32(((~~y - 1) * this.width + (~~x - 1)) * 4, false);
+        return this.__view__.getUint32(this.__get_index__(x, y), false);
     }
 
     /**
@@ -244,7 +243,7 @@ class Image {
      */
     getRGBAAt(x, y) {
         this.__check_boundaries__(x, y);
-        const idx = ((~~y - 1) * this.width + (~~x - 1)) * 4;
+        const idx = this.__get_index__(x, y);
         return this.bitmap.subarray(idx, idx + 4);
     }
 
@@ -255,9 +254,6 @@ class Image {
      * @param {number} pixelColor
      */
     setPixelAt(x, y, pixelColor) {
-        x = ~~x;
-        y = ~~y;
-        this.__check_boundaries__(x, y);
         this.__set_pixel__(x, y, pixelColor);
         return this;
     }
@@ -269,7 +265,39 @@ class Image {
      * @param {number} pixelColor
      */
     __set_pixel__(x, y, pixelColor) {
-        this.__view__.setUint32(((y - 1) * this.width + (x - 1)) * 4, pixelColor, false);
+        this.__view__.setUint32(this.__get_index__(x, y), pixelColor, false);
+    }
+
+    /**
+     * Garbage from the past
+     * @private
+     * @param {number} x
+     * @param {number} y
+     * @param {number} pixelColor
+     */
+    __set_pixel_1_indexed__(x, y, pixelColor) {
+        this.__set_pixel__(x - 1, y - 1, pixelColor)
+    }
+
+    /**
+     * Garbage from the past
+     * @private
+     */
+    __getRGBAAt_1_indexed__(x, y) {
+        return this.getRGBAAt(x-1, y-1)
+    }
+
+    /**
+     * Gets the index into buffer for pixel at the specified position
+     * @param {number} x
+     * @param {number} y
+     * @returns {number} index to be used with this.__view__.getUint32; always multiple of 4
+     */x
+    __get_index__(x, y) {
+        x = ~~x
+        y = ~~y
+        this.__check_boundaries__(x, y);
+        return (y * this.width + x) * 4
     }
 
     /**
@@ -280,14 +308,14 @@ class Image {
     __check_boundaries__(x, y) {
         if (isNaN(x)) throw new TypeError(`Invalid pixel coordinates (x=${x})`);
         if (isNaN(y)) throw new TypeError(`Invalid pixel coordinates (y=${y})`);
-        if (x < 1)
-            throw new RangeError(`${Image.__out_of_bounds__} (x=${x})<1`);
-        if (x > this.width)
-            throw new RangeError(`${Image.__out_of_bounds__} (x=${x})>(width=${this.width})`);
-        if (y < 1)
-            throw new RangeError(`${Image.__out_of_bounds__} (y=${y})<1`);
-        if (y > this.height)
-            throw new RangeError(`${Image.__out_of_bounds__} (y=${y})>(height=${this.height})`);
+        if (x < 0)
+            throw new RangeError(`${Image.__out_of_bounds__} (x=${x})<0`);
+        if (x >= this.width)
+            throw new RangeError(`${Image.__out_of_bounds__} (x=${x})>=(width=${this.width})`);
+        if (y < 0)
+            throw new RangeError(`${Image.__out_of_bounds__} (y=${y})<0`);
+        if (y >= this.height)
+            throw new RangeError(`${Image.__out_of_bounds__} (y=${y})>=(height=${this.height})`);
     }
 
     /**
@@ -509,7 +537,7 @@ class Image {
                         continue;
 
                     const tC = color(tX, tY);
-                    this.__set_pixel__(nX, nY, tC);
+                    this.__set_pixel_1_indexed__(nX, nY, tC);
                 }
             }
         } else return this.__fast_box__(x, y, width, height, color);
@@ -563,7 +591,7 @@ class Image {
         for (let currentY = Math.max(1, y - radius); currentY <= Math.min(y + radius, this.height); currentY++) {
             for (let currentX = Math.max(1, x - radius); currentX <= Math.min(x + radius, this.width); currentX++) {
                 if ((currentX - x) ** 2 + (currentY - y) ** 2 < radSquared)
-                    this.__set_pixel__(currentX, currentY, typeof color === 'function' ? color(currentX - x + radius, currentY - y + radius) : color);
+                    this.__set_pixel_1_indexed__(currentX, currentY, typeof color === 'function' ? color(currentX - x + radius, currentY - y + radius) : color);
             }
         }
 
@@ -664,7 +692,7 @@ class Image {
             throw new RangeError('Invalid lightness value');
 
         return this.fill((x, y) => {
-            const [h, s, l, a] = Image.rgbaToHSLA(...this.getRGBAAt(x, y));
+            const [h, s, l, a] = Image.rgbaToHSLA(...this.__getRGBAAt_1_indexed__(x, y));
             return Image.hslaToColor(h, s, value * (absolute ? 1 : l), a);
         });
     }
@@ -680,7 +708,7 @@ class Image {
             throw new RangeError('Invalid saturation value');
 
         return this.fill((x, y) => {
-            const [h, s, l, a] = Image.rgbaToHSLA(...this.getRGBAAt(x, y));
+            const [h, s, l, a] = Image.rgbaToHSLA(...this.__getRGBAAt_1_indexed__(x, y));
             return Image.hslaToColor(h, value * (absolute ? 1 : s), l, a);
         });
     }
@@ -704,7 +732,7 @@ class Image {
      */
     invert() {
         for (const [x, y, color] of this.iterateWithColors())
-            this.__set_pixel__(x, y, ((0xffffffff - color) & 0xffffff00) | (color & 0xff));
+            this.__set_pixel_1_indexed__(x, y, ((0xffffffff - color) & 0xffffff00) | (color & 0xff));
 
         return this;
     }
@@ -716,7 +744,7 @@ class Image {
     invertValue() {
         for (const [x, y, color] of this.iterateWithColors()) {
             const [h, s, l, a] = Image.rgbaToHSLA(...Image.colorToRGBA(color));
-            this.__set_pixel__(x, y, Image.hslaToColor(h, s, 1 - l, a));
+            this.__set_pixel_1_indexed__(x, y, Image.hslaToColor(h, s, 1 - l, a));
         }
 
         return this;
@@ -729,7 +757,7 @@ class Image {
     invertSaturation() {
         for (const [x, y, color] of this.iterateWithColors()) {
             const [h, s, l, a] = Image.rgbaToHSLA(...Image.colorToRGBA(color));
-            this.__set_pixel__(x, y, Image.hslaToColor(h, 1 - s, l, a));
+            this.__set_pixel_1_indexed__(x, y, Image.hslaToColor(h, 1 - s, l, a));
         }
 
         return this;
@@ -742,7 +770,7 @@ class Image {
     invertHue() {
         for (const [x, y, color] of this.iterateWithColors()) {
             const [h, s, l, a] = Image.rgbaToHSLA(...Image.colorToRGBA(color));
-            this.__set_pixel__(x, y, Image.hslaToColor(1 - h, s, l, a));
+            this.__set_pixel_1_indexed__(x, y, Image.hslaToColor(1 - h, s, l, a));
         }
 
         return this;
@@ -755,7 +783,7 @@ class Image {
     hueShift(degrees) {
         for (const [x, y, color] of this.iterateWithColors()) {
             const [h, s, l, a] = Image.rgbaToHSLA(...Image.colorToRGBA(color));
-            this.__set_pixel__(x, y, Image.hslaToColor(h + degrees / 360, s, l, a));
+            this.__set_pixel_1_indexed__(x, y, Image.hslaToColor(h + degrees / 360, s, l, a));
         }
 
         return this;
