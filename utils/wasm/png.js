@@ -1,10 +1,6 @@
-let wasm_mod;
 let ref = { deref() { } };
 
-{
-  const path = new URL(import.meta.url.replace('.js', '.wasm'));
-  wasm_mod = new WebAssembly.Module(await ('file:' === path.protocol ? Deno.readFile(path) : fetch(path).then(r => r.arrayBuffer())));
-}
+const wasm_mod = await WebAssembly.compileStreaming(fetch(new URL(import.meta.url.replace('.js', '.wasm'))))
 
 function wasm() {
   let u8;

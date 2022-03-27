@@ -1,12 +1,8 @@
-let wasm_mod;
 const streams = new Map;
 let ref = { deref() {} };
 const utf8encoder = new TextEncoder;
 
-{
-  const path = new URL(import.meta.url.replace('.js', '.wasm'));
-  wasm_mod = new WebAssembly.Module(await ('file:' === path.protocol ? Deno.readFile(path) : fetch(path).then(r => r.arrayBuffer())));
-}
+const wasm_mod = await WebAssembly.compileStreaming(fetch(new URL(import.meta.url.replace('.js', '.wasm'))))
 
 function wasm() {
   return ref.deref() || (ref = new WeakRef(new WebAssembly.Instance(wasm_mod, {
