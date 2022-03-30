@@ -45,8 +45,24 @@ export class Image {
         /**
          * The images RGBA pixel data
          * @type {Uint8ClampedArray}
+         * @private
          */
         this.bitmap = new Uint8ClampedArray(this.__buffer__)
+    }
+
+    /**
+     * The images buffer, has width * height * 4 bytes
+     * @returns {ArrayBuffer}
+     */
+    get buffer() {
+        return this.__buffer__
+    }
+
+    /**
+     * @returns {DataView}
+     */
+    get view() {
+        return this.__view__
     }
 
     /**
